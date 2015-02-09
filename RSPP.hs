@@ -1,40 +1,38 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 module RSPP where
 
-import Data.Fixed
+-- The 'c' typeclass is for your currency datatype, ie. 'Centi'
 
-newtype Money = Money { unMoney :: Centi } deriving (Read, Show, Eq, Ord, Num, Fractional)
-
-data PledgeClause = FixedPledge Money
-                  | PledgeAbove { paAbove :: Money, paPerUnit :: Money, paUnit :: Money }
+data PledgeClause c = FixedPledge c
+                  | PledgeAbove { paAbove :: c, paPerUnit :: c, paUnit :: c }
                   deriving (Read, Show, Eq)
 
-data Pledge = Pledge { pClauses :: [PledgeClause], pLimit :: Money } deriving (Read, Show, Eq)
+data Pledge c = Pledge { pClauses :: [PledgeClause c], pLimit :: c } deriving (Read, Show, Eq)
 
-evalClause :: Money -> PledgeClause -> Money
+evalClause :: (Ord c, Fractional c) => c -> PledgeClause c -> c
 evalClause     _ (FixedPledge x)                  = x
-evalClause total (PledgeAbove above perUnit unit) = max (Money 0.00) $ ((total - above) * perUnit) / unit
+evalClause total (PledgeAbove above perUnit unit) = max (fromInteger 0) $ ((total - above) * perUnit) / unit
 
 -- Note: a pledge is evaluated as though its own contribution has already been added to the total!
-evalPledge :: Money -> Pledge -> Money
+evalPledge :: (Ord c, Fractional c) => c -> Pledge c -> c
 evalPledge total (Pledge clauses limit) = min limit (sum $ map (evalClause total) clauses)
 
-maxPledge :: Pledge -> Money
+maxPledge :: Pledge c -> c
 maxPledge = pLimit
 
-maxPledges :: [Pledge] -> Money
+maxPledges :: Num c => [Pledge c] -> c
 maxPledges = sum . map maxPledge
 
-minPledge :: Pledge -> Money
-minPledge = evalPledge $ Money 0.00
+minPledge :: (Ord c, Fractional c) => Pledge c -> c
+minPledge = evalPledge $ fromInteger 0
 
-minPledges :: [Pledge] -> Money
+minPledges :: (Ord c, Fractional c) => [Pledge c] -> c
 minPledges = sum . map minPledge
 
-evalAllPledges :: Money -> [Pledge] -> Money
+evalAllPledges :: (Ord c, Fractional c) => c -> [Pledge c] -> c
 evalAllPledges total pledges = sum $ map (evalPledge total) pledges
 
-solveInRange :: Money -> Money -> [Pledge] -> Money
+solveInRange :: (Ord c, Fractional c) => c -> c -> [Pledge c] -> c
 solveInRange l h pledges
     | h == l    = h
     | otherwise =
@@ -45,5 +43,5 @@ solveInRange l h pledges
                     in  if totalMid < mid then solveInRange l mid pledges
                                           else solveInRange mid h pledges
 
-solve :: [Pledge] -> Money
+solve :: (Ord c, Fractional c) => [Pledge c] -> c
 solve pledges = solveInRange (minPledges pledges) (maxPledges pledges) pledges
