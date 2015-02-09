@@ -35,11 +35,15 @@ evalAllPledges :: Money -> [Pledge] -> Money
 evalAllPledges total pledges = sum $ map (evalPledge total) pledges
 
 solveInRange :: Money -> Money -> [Pledge] -> Money
-solveInRange l h pledges = if (h - l) <= (Money 0.01) then h
-                           else let mid      = l + ((h - l) / 2)
-                                    totalMid = evalAllPledges mid pledges
-                                in if totalMid < mid then solveInRange l mid pledges
-                                   else solveInRange mid h pledges
+solveInRange l h pledges
+    | h == l    = h
+    | otherwise =
+        let mid = l + ((h - l) / 2)
+        in  if l == mid
+               then l
+               else let totalMid = evalAllPledges mid pledges
+                    in  if totalMid < mid then solveInRange l mid pledges
+                                          else solveInRange mid h pledges
 
 solve :: [Pledge] -> Money
 solve pledges = solveInRange (minPledges pledges) (maxPledges pledges) pledges
