@@ -5,14 +5,14 @@ import Data.Foldable as F
 -- The 'c' typeclass is for your currency datatype, ie. 'Centi'
 
 data PledgeClause c = FixedPledge c
-                  | PledgeAbove { paAbove :: c, paPerUnit :: c, paUnit :: c }
+                  | RationalPledge { paAbove :: c, paPerUnit :: c, paUnit :: c }
                   deriving (Eq, Read, Show)
 
 data Pledge c = Pledge { pClauses :: [PledgeClause c], pLimit :: c } deriving (Eq, Read, Show)
 
 evalClause :: (Ord c, Fractional c) => c -> PledgeClause c -> c
 evalClause     _ (FixedPledge x)                  = x
-evalClause total (PledgeAbove above perUnit unit) = max (fromInteger 0) $ ((total - above) * perUnit) / unit
+evalClause total (RationalPledge above perUnit unit) = max (fromInteger 0) $ ((total - above) * perUnit) / unit
 
 mapSum :: (Foldable t, Num c) => (a -> c) -> t a -> c
 mapSum f p = F.foldr step (fromInteger 0) p
