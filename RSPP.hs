@@ -1,14 +1,20 @@
-module RSPP where
+module RSPP (
+    Pledge(Pledge), pledgeClauses, pledgeLimit,
+    PledgeClause(FixedPledge, RationalPledge), rpAbove, rpPerUnit, rpUnit,
+    solve,
+    evalClause, evalPledge, evalPledges,
+    pledgeMax, pledgeMin, maxPledges, minPledges,
+) where
 
 import Data.Foldable as F
 
 -- The 'c' typeclass is for your currency datatype, ie. 'Centi'
 
 data PledgeClause c = FixedPledge c
-                    | RationalPledge { paAbove :: c, paPerUnit :: c, paUnit :: c }
+                    | RationalPledge { rpAbove :: c, rpPerUnit :: c, rpUnit :: c }
                     deriving (Eq, Read, Show)
 
-data Pledge c = Pledge { pClauses :: [PledgeClause c], pLimit :: c } deriving (Eq, Read, Show)
+data Pledge c = Pledge { pledgeClauses :: [PledgeClause c], pledgeLimit :: c } deriving (Eq, Read, Show)
 
 evalClause :: (Ord c, Fractional c) => c -> PledgeClause c -> c
 evalClause     _ (FixedPledge x)                  = x
@@ -24,7 +30,7 @@ evalPledge total (Pledge clauses limit) =
     min limit (mapSum (evalClause total) clauses)
 
 pledgeMax :: Pledge c -> c
-pledgeMax = pLimit
+pledgeMax = pledgeLimit
 
 maxPledges :: (Foldable t, Num c) => t (Pledge c) -> c
 maxPledges = mapSum pledgeMax
