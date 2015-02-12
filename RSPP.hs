@@ -5,8 +5,8 @@ import Data.Foldable as F
 -- The 'c' typeclass is for your currency datatype, ie. 'Centi'
 
 data PledgeClause c = FixedPledge c
-                  | RationalPledge { paAbove :: c, paPerUnit :: c, paUnit :: c }
-                  deriving (Eq, Read, Show)
+                    | RationalPledge { paAbove :: c, paPerUnit :: c, paUnit :: c }
+                    deriving (Eq, Read, Show)
 
 data Pledge c = Pledge { pClauses :: [PledgeClause c], pLimit :: c } deriving (Eq, Read, Show)
 
