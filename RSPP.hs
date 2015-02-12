@@ -54,7 +54,7 @@ solveInRange l h pledges
 evalPledges :: (Foldable t, Ord c, Fractional c) => c            -- ^ The total to evaluate against
                                                  -> t (Pledge c) -- ^ All pledges
                                                  -> c            -- ^ The total of all pledges evaluated against the given total
-evalPledges total pledges = mapSum (evalPledge total) pledges
+evalPledges total = mapSum (evalPledge total)
 
 -- | Given a particular total, how much of it was this pledge?
 -- Note: the given total includes the total of this pledge!
@@ -69,7 +69,7 @@ evalClause :: (Ord c, Fractional c) => c              -- ^ The total raised, inc
                                     -> PledgeClause c -- ^ The clause to evaluate
                                     -> c              -- ^ What this clause contributes to the given total
 evalClause     _ (FixedPledge x)                  = x
-evalClause total (RationalPledge above perUnit unit) = max (fromInteger 0) $ ((total - above) * perUnit) / unit
+evalClause total (RationalPledge above perUnit unit) = max 0 $ ((total - above) * perUnit) / unit
 
 -- | The highest conceivable total that these pledges may contribute, based on their limits.
 -- Note that it may not be possible to actually reach this total.
@@ -90,9 +90,10 @@ minPledges = mapSum pledgeMin
 
 -- | The least this pledge may contribute. May be above 0 if it contains a FixedPledge clause.
 pledgeMin :: (Ord c, Fractional c) => Pledge c -> c
-pledgeMin = evalPledge $ fromInteger 0
+pledgeMin = evalPledge 0
 
 -- A utility function: map a function over a 't a', and then sum the results
+-- TODO: Is this actually better than using fmap and foldr?
 mapSum :: (Foldable t, Num c) => (a -> c) -> t a -> c
-mapSum f p = F.foldr step (fromInteger 0) p
-    where step a sum = f a + sum
+mapSum f = F.foldr step 0
+    where step a accum = f a + accum
