@@ -10,11 +10,15 @@ license:             MIT
 license-file:        LICENSE
 author:              Alex Chapman
 maintainer:          alex@farfromthere.net
--- copyright:           
--- category:            
+copyright:           Alex Chapman
+category:            Algorithms
 build-type:          Simple
 -- extra-source-files:  
 cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: https://github.com/AJChapman/rspp
 
 library
   exposed-modules:     RSPP
