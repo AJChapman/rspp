@@ -69,7 +69,7 @@ evalClause :: (Ord c, Fractional c) => c              -- ^ The total raised, inc
                                     -> PledgeClause c -- ^ The clause to evaluate
                                     -> c              -- ^ What this clause contributes to the given total
 evalClause     _ (FixedPledge x)                  = x
-evalClause total (RationalPledge above perUnit unit) = max 0 $ ((total - above) * perUnit) / unit
+evalClause total (RationalPledge above perUnit unit) = max 0 $ ((total - above) * unit) / perUnit
 
 -- | The highest conceivable total that these pledges may contribute, based on their limits.
 -- Note that it may not be possible to actually reach this total.
