@@ -1,3 +1,33 @@
+{-|
+This module implements a solver for the Rational Street Performer Protocol.
+
+Typical usage:
+
+ Gather a collection of pledges. They can be for a fixed amount, or a pledge based on the total raised:
+
+  > import RSPP
+  > import Data.Fixed -- for our money type
+  > 
+  > type Money = Centi
+  > 
+  > pledges :: [Pledge Money]
+  > pledges =
+  >   [ Pledge [RationalPledge 100.00 5.00 1.00] 250.00                   -- Pledge $1 for every $5 raised above $100, up to a limit of $250
+  >   , Pledge [FixedPledge 50.00, RationalPledge 25.00 2.00 1.00] 500.00 -- Pledge $50, plus $1 for every $2 raised above $25, up to a limit of $500
+  >   , Pledge [FixedPledge 200.00] 200.00                                -- Pledge $200
+  >   ]
+
+Find the total amount that these pledges will raise:
+
+  > total :: Money
+  > total = solve pledges -- 725.00
+
+Find out how much each pledge evaluates to:
+
+  > pledgeAmounts :: [Money]
+  > pledgeAmounts = fmap (evalPledge total) pledges -- [125.00, 400.00, 200.00]
+-}
+
 module RSPP (
   -- * Types
   -- ** Pledge
